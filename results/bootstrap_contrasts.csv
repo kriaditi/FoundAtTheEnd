@@ -1,36 +1,48 @@
 contrast,estimate_pp,ci95_low_pp,ci95_high_pp,excludes_zero,n_questions
-Frozen Qwen: gap (first - last),16.73,12.9,20.77,True,496
-Standard LoRA SFT: gap (first - last),0.91,-1.21,3.02,False,496
-Balanced LoRA SFT: gap (first - last),0.1,-1.81,2.02,False,496
-"Isolated reading (frozen, mean log-prob): gap (first - last)",0.0,0.0,0.0,False,496
-Standard LoRA SFT vs Frozen: change in gap,-15.83,-20.16,-11.79,True,496
-Standard LoRA SFT vs Frozen: accuracy at gold first,9.27,4.84,13.61,True,496
-Standard LoRA SFT vs Frozen: accuracy at gold middle,21.98,17.74,26.21,True,496
-Standard LoRA SFT vs Frozen: accuracy at gold last,25.1,20.67,29.44,True,496
-Balanced LoRA SFT vs Frozen: change in gap,-16.63,-20.87,-12.5,True,496
-Balanced LoRA SFT vs Frozen: accuracy at gold first,8.77,4.33,13.21,True,496
-Balanced LoRA SFT vs Frozen: accuracy at gold middle,22.28,18.15,26.51,True,496
-Balanced LoRA SFT vs Frozen: accuracy at gold last,25.4,21.07,29.74,True,496
-"Isolated reading (frozen, mean log-prob) vs Frozen: change in gap",-16.73,-20.77,-12.9,True,496
-"Isolated reading (frozen, mean log-prob) vs Frozen: accuracy at gold first",-14.72,-18.75,-10.89,True,496
-"Isolated reading (frozen, mean log-prob) vs Frozen: accuracy at gold middle",-2.42,-6.05,1.21,False,496
-"Isolated reading (frozen, mean log-prob) vs Frozen: accuracy at gold last",2.02,-1.61,5.65,False,496
-"Standard LoRA SFT vs Isolated reading (frozen, mean log-prob): accuracy at gold first",23.99,19.56,28.43,True,496
-"Standard LoRA SFT vs Isolated reading (frozen, mean log-prob): accuracy at gold middle",24.4,19.86,28.93,True,496
-"Standard LoRA SFT vs Isolated reading (frozen, mean log-prob): accuracy at gold last",23.08,18.65,27.62,True,496
-"Balanced LoRA SFT vs Isolated reading (frozen, mean log-prob): accuracy at gold first",23.49,18.95,28.02,True,496
-"Balanced LoRA SFT vs Isolated reading (frozen, mean log-prob): accuracy at gold middle",24.7,20.16,29.23,True,496
-"Balanced LoRA SFT vs Isolated reading (frozen, mean log-prob): accuracy at gold last",23.39,18.85,27.82,True,496
-Balanced LoRA SFT vs Standard LoRA SFT: change in gap,-0.81,-3.02,1.41,False,496
-Balanced LoRA SFT vs Standard LoRA SFT: accuracy at gold first,-0.5,-2.32,1.31,False,496
-Balanced LoRA SFT vs Standard LoRA SFT: accuracy at gold middle,0.3,-1.61,2.22,False,496
-Balanced LoRA SFT vs Standard LoRA SFT: accuracy at gold last,0.3,-1.61,2.22,False,496
-[k=20] Frozen Qwen: gap (first - last),16.53,12.7,20.56,True,496
-[k=20] Standard LoRA SFT: gap (first - last),0.91,-0.91,2.82,False,496
-[k=20] Balanced LoRA SFT: gap (first - last),0.4,-1.61,2.52,False,496
-[k=20] Standard LoRA SFT vs Frozen: change in gap,-15.63,-19.76,-11.49,True,496
-[k=20] Balanced LoRA SFT vs Frozen: change in gap,-16.13,-20.36,-11.9,True,496
-[k=20] Balanced LoRA SFT vs Standard LoRA SFT: change in gap,-0.5,-2.82,1.71,False,496
-[k=20] Balanced LoRA SFT vs Standard LoRA SFT: accuracy at gold first,-0.6,-2.52,1.31,False,496
-[k=20] Balanced LoRA SFT vs Standard LoRA SFT: accuracy at gold middle,-1.01,-2.82,0.81,False,496
-[k=20] Balanced LoRA SFT vs Standard LoRA SFT: accuracy at gold last,-0.1,-2.02,1.81,False,496
+Frozen Qwen: gap (first - last),15.56,11.72,19.6,True,495
+Standard LoRA SFT: gap (first - last),0.74,-0.81,2.29,False,495
+Balanced LoRA SFT: gap (first - last),-0.54,-2.15,1.08,False,495
+Gold-first LoRA SFT (control): gap (first - last),55.42,51.38,59.6,True,495
+"Isolated reading (frozen, mean log-prob): gap (first - last)",0.0,0.0,0.0,False,495
+Standard LoRA SFT vs Frozen: change in gap,-14.81,-19.06,-10.84,True,495
+Standard LoRA SFT vs Frozen: accuracy at gold first,9.63,5.19,14.01,True,495
+Standard LoRA SFT vs Frozen: accuracy at gold middle,22.69,18.45,27.0,True,495
+Standard LoRA SFT vs Frozen: accuracy at gold last,24.44,20.13,28.89,True,495
+Balanced LoRA SFT vs Frozen: change in gap,-16.09,-20.2,-12.05,True,495
+Balanced LoRA SFT vs Frozen: accuracy at gold first,9.02,4.65,13.33,True,495
+Balanced LoRA SFT vs Frozen: accuracy at gold middle,23.5,19.26,27.88,True,495
+Balanced LoRA SFT vs Frozen: accuracy at gold last,25.12,20.81,29.49,True,495
+Gold-first LoRA SFT (control) vs Frozen: change in gap,39.87,35.02,44.72,True,495
+Gold-first LoRA SFT (control) vs Frozen: accuracy at gold first,24.58,20.2,29.02,True,495
+Gold-first LoRA SFT (control) vs Frozen: accuracy at gold middle,-18.38,-22.49,-14.41,True,495
+Gold-first LoRA SFT (control) vs Frozen: accuracy at gold last,-15.29,-19.26,-11.45,True,495
+"Isolated reading (frozen, mean log-prob) vs Frozen: change in gap",-15.56,-19.6,-11.72,True,495
+"Isolated reading (frozen, mean log-prob) vs Frozen: accuracy at gold first",-13.94,-17.78,-10.1,True,495
+"Isolated reading (frozen, mean log-prob) vs Frozen: accuracy at gold middle",-1.41,-5.05,2.22,False,495
+"Isolated reading (frozen, mean log-prob) vs Frozen: accuracy at gold last",1.62,-2.22,5.45,False,495
+"Standard LoRA SFT vs Isolated reading (frozen, mean log-prob): accuracy at gold first",23.57,19.26,27.95,True,495
+"Standard LoRA SFT vs Isolated reading (frozen, mean log-prob): accuracy at gold middle",24.11,19.73,28.62,True,495
+"Standard LoRA SFT vs Isolated reading (frozen, mean log-prob): accuracy at gold last",22.83,18.38,27.27,True,495
+"Balanced LoRA SFT vs Isolated reading (frozen, mean log-prob): accuracy at gold first",22.96,18.59,27.41,True,495
+"Balanced LoRA SFT vs Isolated reading (frozen, mean log-prob): accuracy at gold middle",24.92,20.61,29.29,True,495
+"Balanced LoRA SFT vs Isolated reading (frozen, mean log-prob): accuracy at gold last",23.5,19.19,27.81,True,495
+Balanced LoRA SFT vs Standard LoRA SFT: change in gap,-1.28,-3.16,0.61,False,495
+Balanced LoRA SFT vs Standard LoRA SFT: accuracy at gold first,-0.61,-2.22,1.01,False,495
+Balanced LoRA SFT vs Standard LoRA SFT: accuracy at gold middle,0.81,-0.67,2.29,False,495
+Balanced LoRA SFT vs Standard LoRA SFT: accuracy at gold last,0.67,-0.88,2.15,False,495
+Gold-first LoRA SFT (control) vs Standard LoRA SFT: change in gap,54.68,50.37,59.19,True,495
+Gold-first LoRA SFT (control) vs Standard LoRA SFT: accuracy at gold first,14.95,11.78,18.25,True,495
+Gold-first LoRA SFT (control) vs Standard LoRA SFT: accuracy at gold middle,-41.08,-45.25,-36.97,True,495
+Gold-first LoRA SFT (control) vs Standard LoRA SFT: accuracy at gold last,-39.73,-43.84,-35.69,True,495
+[k=20] Frozen Qwen: gap (first - last),16.36,12.53,20.4,True,495
+[k=20] Standard LoRA SFT: gap (first - last),0.74,-1.01,2.49,False,495
+[k=20] Balanced LoRA SFT: gap (first - last),0.13,-1.68,2.02,False,495
+[k=20] Gold-first LoRA SFT (control): gap (first - last),54.88,50.84,59.06,True,495
+[k=20] Standard LoRA SFT vs Frozen: change in gap,-15.62,-19.87,-11.52,True,495
+[k=20] Balanced LoRA SFT vs Frozen: change in gap,-16.23,-20.27,-12.39,True,495
+[k=20] Gold-first LoRA SFT (control) vs Frozen: change in gap,38.52,33.54,43.43,True,495
+[k=20] Balanced LoRA SFT vs Standard LoRA SFT: change in gap,-0.61,-2.69,1.41,False,495
+[k=20] Balanced LoRA SFT vs Standard LoRA SFT: accuracy at gold first,0.81,-0.88,2.56,False,495
+[k=20] Balanced LoRA SFT vs Standard LoRA SFT: accuracy at gold middle,1.95,0.27,3.64,True,495
+[k=20] Balanced LoRA SFT vs Standard LoRA SFT: accuracy at gold last,1.41,-0.4,3.16,False,495
+[k=20] Gold-first LoRA SFT (control) vs Standard LoRA SFT: change in gap,54.14,49.7,58.65,True,495

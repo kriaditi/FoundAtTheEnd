@@ -19,12 +19,15 @@ trap 'rc=$?; [[ $rc -ne 0 ]] && mark_failed $STAGE "exit $rc job ${SLURM_JOB_ID:
 
 log "run $NAME  host $(hostname)  job ${SLURM_JOB_ID:-local}  restart ${SLURM_RESTART_COUNT:-0}"
 nvidia-smi --query-gpu=name,memory.used,memory.total --format=csv,noheader | sed 's/^/   GPU: /'
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True   # avoid OOM from fragmentation on 48 GB GPUs
 
 extra=()
 if [[ "$SMOKE" == 1 ]]; then extra+=(--smoke); fi
+DATA="$TRAIN_DATA_DIR/final"
+if [[ "$RUN_COND" == mixed_* ]]; then DATA="$MIXED_DATA_DIR/final"; fi   # InfoSeek + E-VQA conditions
 cd "$AUTHORS_DIR"
 "$PY" "$PROJ/lae/train_lora.py" \
-  --authors-dir "$AUTHORS_DIR" --data-dir "$TRAIN_DATA_DIR/final" \
+  --authors-dir "$AUTHORS_DIR" --data-dir "$DATA" \
   --condition "$RUN_COND" --seed "$RUN_SEED" --out "$OUT" \
   --lora-r "$LORA_R" --lora-alpha "$LORA_ALPHA" --lora-dropout "$LORA_DROPOUT" \
   --lr "$LR" --epochs "$EPOCHS" --per-device-batch "$PER_DEVICE_BATCH" --grad-accum "$GRAD_ACCUM" \

@@ -49,8 +49,14 @@ def read_jsonl(path: Path, limit: int = 0) -> list[dict]:
 
 
 class SFTDataset(torch.utils.data.Dataset):
-    def __init__(self, rows: list[dict], passages: dict, image_dir: Path):
-        self.rows, self.passages, self.image_dir = rows, passages, image_dir
+    def __init__(self, rows: list[dict], passages: dict, image_dir: Path, authors_dir: Path | None = None):
+        self.rows, self.passages, self.image_dir, self.authors_dir = rows, passages, image_dir, authors_dir
+
+    def image_path(self, r: dict) -> Path:
+        # mixed (InfoSeek + E-VQA) rows carry image_root relative to the authors' repo
+        if r.get("image_root") and self.authors_dir is not None:
+            return self.authors_dir / r["image_root"] / r["img_path"]
+        return self.image_dir / r["img_path"]
 
     def __len__(self) -> int:
         return len(self.rows)
@@ -59,7 +65,7 @@ class SFTDataset(torch.utils.data.Dataset):
         r = self.rows[i]
         return {"qid": r["qid"], "question": r["question"], "target": r["target"],
                 "passages": [self.passages[p] for p in r["passage_ids"]],
-                "image_path": str(self.image_dir / r["img_path"])}
+                "image_path": str(self.image_path(r))}
 
 
 class Collator:
@@ -106,6 +112,13 @@ def load_passages(authors_dir: Path) -> dict:
     t = pq.read_table(hf_hub_download(M2KR_REPO, f, repo_type="dataset"),
                       columns=["passage_id", "passage_content", "title"]).to_pylist()
     return {r["passage_id"]: Passage(r["passage_id"], r["title"], r["passage_content"]) for r in t}
+
+
+def load_evqa_passages(authors_dir: Path) -> dict:
+    """The E-VQA KB the authors evaluate on (51,462 passages); ids are 'WikiWeb_...', disjoint from InfoSeek's."""
+    sys.path.insert(0, str(authors_dir / "src"))
+    from tts_kbvqa.data import evqa as evqa_data
+    return {p.passage_id: p for p in evqa_data.load_passages(evqa_data.download_passages_parquet())}
 
 
 def build_model(args):
@@ -181,6 +194,13 @@ def main(argv=None, model_override=None, processor_override=None, passages_overr
     log(f"condition {args.condition}: {len(train_rows)} train, {len(dev_rows)} dev, seed {args.seed}")
 
     passages = passages_override if passages_override is not None else load_passages(args.authors_dir)
+    needed = {p for r in train_rows + dev_rows for p in r["passage_ids"]}
+    if passages_override is None and any(p not in passages for p in needed):
+        passages = {**passages, **load_evqa_passages(args.authors_dir)}
+        log(f"  mixed data: added the E-VQA KB ({len(passages)} passages in total)")
+    missing = [p for p in needed if p not in passages]
+    if missing:
+        raise SystemExit(f"{len(missing)} passage ids not found in any KB, e.g. {missing[:3]}")
     image_dir = args.authors_dir / "data/infoseek/images/train"
     if processor_override is not None:
         processor = processor_override
@@ -190,8 +210,8 @@ def main(argv=None, model_override=None, processor_override=None, passages_overr
                                                   max_pixels=VISION_MAX_PIXELS)
     processor.tokenizer.padding_side = "right"
     collator = Collator(processor, SYSTEM_PROMPT, passage_block, args.max_len)
-    train_ds = SFTDataset(train_rows, passages, image_dir)
-    dev_ds = SFTDataset(dev_rows, passages, image_dir)
+    train_ds = SFTDataset(train_rows, passages, image_dir, args.authors_dir)
+    dev_ds = SFTDataset(dev_rows, passages, image_dir, args.authors_dir)
 
     if args.smoke:  # show exactly what the model is trained on for one example
         b = collator([train_ds[0]])

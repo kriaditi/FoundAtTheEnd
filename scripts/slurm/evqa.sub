@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=ak2877@cornell.edu
+# GPU job: E-VQA transfer for one reader (authors' P20 protocol, Qwen part, 500 questions).
+# Inputs (env): EVQA_NAME ("frozen" or a train run name), ADAPTER (empty = frozen reader).
+# The frozen run builds the retrieval cache; adapter runs reuse it (lae/evqa_transfer.py).
+set -euo pipefail
+: "${PROJ:?PROJ not set; run via scripts/06_evqa.sh}"
+: "${EVQA_NAME:?}"
+source "$PROJ/scripts/config.sh"
+source "$PROJ/scripts/lib.sh"
+mkdirs
+
+STAGE="evqa_${EVQA_NAME}"
+OUT="$RUNS_DIR/evqa"
+trap 'rc=$?; [[ $rc -ne 0 ]] && mark_failed $STAGE "exit $rc job ${SLURM_JOB_ID:-local}"; exit $rc' EXIT
+log "evqa $EVQA_NAME  adapter=${ADAPTER:-<none, frozen>}  host $(hostname)  job ${SLURM_JOB_ID:-local}"
+nvidia-smi --query-gpu=name,memory.used,memory.total --format=csv,noheader | sed 's/^/   GPU: /'
+
+if [[ -n "${ADAPTER:-}" ]]; then
+  need_file "$ADAPTER/adapter_model.safetensors"
+  need_file "$OUT/frozen/retrieval_p20.jsonl" "(the frozen E-VQA run must finish first)"
+fi
+cd "$AUTHORS_DIR"
+"$PY" "$PROJ/lae/evqa_transfer.py" --authors-dir "$AUTHORS_DIR" --root "$OUT" \
+  --run "$EVQA_NAME" --adapter "${ADAPTER:-}"
+need_file "$OUT/$EVQA_NAME/summary.json"
+mark_ok "$STAGE" "job ${SLURM_JOB_ID:-local} -> $OUT/$EVQA_NAME"
+log "$STAGE OK"

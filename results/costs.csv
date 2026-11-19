@@ -1,7 +1,12 @@
 run,train_hours,train_s_per_step,train_peak_gpu_gb,infer_mean_latency_s_k10,infer_mean_input_tokens_k10,eval_peak_gpu_gb,eval_wall_min
-p17_repro (frozen),0,-,-,0.414,2235.1,19.314165248,47.1
-standard_seed0,3.52,10.14,44.62,0.403,2235.1,19.313513472,42.8
-standard_seed1,3.48,10.04,44.42,0.41,2235.1,19.313513472,43.6
-balanced_s0_seed0,3.49,10.05,44.62,0.409,2235.1,19.314165248,43.4
-balanced_s1_seed1,3.48,10.01,44.42,0.412,2235.1,19.313513472,43.8
-"isolated reading (frozen, 10 reads per question)",0,-,-,3.445,8047.5,19.288375808,28.6
+p17_repro (frozen),0,-,-,0.717,2235.4,19.289398784,81.6
+standard_seed0,8.25,23.75,44.35,0.712,2235.4,0.0,0.1
+standard_seed1,resumed: see logs,,44.3,0.703,2235.4,0.0,0.1
+standard_seed2,8.28,23.85,44.36,0.726,2235.4,0.0,0.1
+balanced_s0_seed0,8.31,23.94,44.35,0.685,2235.4,0.0,0.1
+balanced_s1_seed1,resumed: see logs,,44.3,0.735,2235.4,0.0,0.1
+balanced_s2_seed2,8.01,23.08,44.36,0.728,2235.4,0.0,0.1
+goldfirst_seed0,8.07,23.24,44.35,0.739,2235.4,0.0,0.1
+goldfirst_seed1,7.86,22.64,44.37,0.707,2235.4,0.0,0.1
+goldfirst_seed2,8.23,23.7,44.36,0.715,2235.4,0.0,0.1
+"isolated reading (frozen, 10 reads per question)",0,-,-,4.909,8041.9,19.263136256,40.6

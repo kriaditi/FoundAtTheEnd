@@ -29,7 +29,9 @@ import numpy as np
 B, SEED = 10_000, 42
 POS = ("first", "middle", "last")
 KS = (1, 3, 5, 10, 20)
-COND_LABEL = {"standard": "Standard LoRA SFT", "balanced": "Balanced LoRA SFT"}
+CONDS = ("standard", "balanced", "goldfirst")
+COND_LABEL = {"standard": "Standard LoRA SFT", "balanced": "Balanced LoRA SFT",
+              "goldfirst": "Gold-first LoRA SFT (control)"}
 
 
 def load_run(run_dir: Path) -> dict:
@@ -74,7 +76,7 @@ def main() -> int:
     ap.add_argument("--eval-root", type=Path, required=True)
     ap.add_argument("--train-root", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--planned-seeds", type=int, default=2)
+    ap.add_argument("--planned-seeds", type=int, default=3)
     ap.add_argument("--isolated", type=Path, default=None, help="runs/isolated (optional)")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
@@ -83,17 +85,17 @@ def main() -> int:
     qids = sorted(frozen["cells"]["k10_first"])
     n = len(qids)
 
-    # trained runs: <condition>_seed<S>, condition "standard" or "balanced_s<S>"
-    runs: dict[str, list[tuple[int, str, dict]]] = {"standard": [], "balanced": []}
+    # trained runs: <condition>_seed<S>, condition "standard", "balanced_s<S>" or "goldfirst"
+    runs: dict[str, list[tuple[int, str, dict]]] = {c: [] for c in CONDS}
     for d in sorted(args.eval_root.glob("*_seed*")):
-        m = re.fullmatch(r"(standard|balanced_s\d+)_seed(\d+)", d.name)
+        m = re.fullmatch(r"(standard|balanced_s\d+|goldfirst)_seed(\d+)", d.name)
         if not m or not (d / "per_cell_summary.json").exists():
             continue
         run = load_run(d)
         for cell, dd in run["cells"].items():
             if set(dd) != set(qids):
                 raise SystemExit(f"{d.name}/{cell}: question set differs from the frozen run")
-        cond = "standard" if m.group(1) == "standard" else "balanced"
+        cond = "balanced" if m.group(1).startswith("balanced") else m.group(1)
         runs[cond].append((int(m.group(2)), d.name, run))
 
     # --- per-seed table
@@ -110,7 +112,7 @@ def main() -> int:
         return r
 
     per_seed.append(row("Frozen Qwen2.5-VL-7B", "p17_repro", frozen["cells"], "measured"))
-    for cond in ("standard", "balanced"):
+    for cond in CONDS:
         for seed, name, run in sorted(runs[cond]):
             per_seed.append(row(COND_LABEL[cond], name, run["cells"], "measured"))
 
@@ -121,7 +123,7 @@ def main() -> int:
     final[0]["first_minus_last_gap"] = round(final[0]["gold_first"] - final[0]["gold_last"], 2)
     models = {"Frozen Qwen": frozen["cells"]}
     status = {"Frozen Qwen": "measured (1 run, greedy decoding)"}
-    for cond in ("standard", "balanced"):
+    for cond in CONDS:
         rs = [r for _, _, r in sorted(runs[cond])]
         if rs:
             models[COND_LABEL[cond]] = seed_mean(rs, qids)
@@ -165,7 +167,7 @@ def main() -> int:
         for p in POS:
             add(f"{m} vs Frozen: accuracy at gold {p}",
                 lambda i, m=m, p=p: V[m][p][i].mean() - V["Frozen Qwen"][p][i].mean())
-    s, b = COND_LABEL["standard"], COND_LABEL["balanced"]
+    s, b, g = COND_LABEL["standard"], COND_LABEL["balanced"], COND_LABEL["goldfirst"]
     iso_name = "Isolated reading (frozen, mean log-prob)"
     if iso_name in models:
         for m in (s, b):
@@ -179,6 +181,12 @@ def main() -> int:
             - (V[s]["first"][i].mean() - V[s]["last"][i].mean()))
         for p in POS:
             add(f"{b} vs {s}: accuracy at gold {p}", lambda i, p=p: V[b][p][i].mean() - V[s][p][i].mean())
+    if g in models and s in models:  # control: does late-position exposure matter?
+        add(f"{g} vs {s}: change in gap",
+            lambda i: (V[g]["first"][i].mean() - V[g]["last"][i].mean())
+            - (V[s]["first"][i].mean() - V[s]["last"][i].mean()))
+        for p in POS:
+            add(f"{g} vs {s}: accuracy at gold {p}", lambda i, p=p: V[g][p][i].mean() - V[s][p][i].mean())
 
     # --- k = 20 contrasts (same questions, same bootstrap indices); isolated reading is k=10 only
     V20 = {m: {p: vec(c, f"k20_{p}", qids) for p in POS} for m, c in models.items() if f"k20_first" in c}
@@ -191,6 +199,8 @@ def main() -> int:
         add(f"[k=20] {b} vs {s}: change in gap", lambda i: g20(b, i) - g20(s, i))
         for p in POS:
             add(f"[k=20] {b} vs {s}: accuracy at gold {p}", lambda i, p=p: V20[b][p][i].mean() - V20[s][p][i].mean())
+    if g in V20 and s in V20:
+        add(f"[k=20] {g} vs {s}: change in gap", lambda i: g20(g, i) - g20(s, i))
 
     # --- costs
     costs = [{"run": "p17_repro (frozen)", "train_hours": 0, "train_s_per_step": "-", "train_peak_gpu_gb": "-",
@@ -198,7 +208,7 @@ def main() -> int:
               "infer_mean_input_tokens_k10": round(float(np.mean(frozen["tokens"])), 1) if frozen["tokens"] else "-",
               "eval_peak_gpu_gb": frozen["summary"].get("peak_alloc_gb"),
               "eval_wall_min": round(frozen["summary"].get("wall_clock_s", 0) / 60, 1)}]
-    for cond in ("standard", "balanced"):
+    for cond in CONDS:
         for seed, name, run in sorted(runs[cond]):
             tm_path = args.train_root / name / "train_metrics.json"
             tm = json.loads(tm_path.read_text()) if tm_path.exists() else {}

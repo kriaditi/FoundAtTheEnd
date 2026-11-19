@@ -175,18 +175,19 @@ def cmd_compare(authors_dir: Path, root: Path, out_dir: Path, planned_seeds: int
     frozen = load(root / "frozen")
     qids = sorted(frozen["first"])
     n = len(qids)
-    runs = {"standard": [], "balanced": []}
+    runs = {"standard": [], "balanced": [], "goldfirst": []}
     per_seed = []
     for d in sorted(root.iterdir()):
-        m = re.fullmatch(r"(standard|balanced_s\d+)_seed(\d+)", d.name)
+        m = re.fullmatch(r"(standard|balanced_s\d+|goldfirst)_seed(\d+)", d.name)
         if m and (d / "summary.json").exists():
             r = load(d)
             assert all(set(r[p]) == set(qids) for p in POS), f"{d.name}: question set differs"
-            runs["standard" if m.group(1) == "standard" else "balanced"].append((d.name, r))
+            runs["balanced" if m.group(1).startswith("balanced") else m.group(1)].append((d.name, r))
     vec = lambda cells, p: np.array([cells[p][q] for q in qids])
     models = {"Frozen Qwen": {p: vec(frozen, p) for p in POS}}
     status = {"Frozen Qwen": "measured"}
-    for cond, label in (("standard", "Standard LoRA SFT"), ("balanced", "Balanced LoRA SFT")):
+    for cond, label in (("standard", "Standard LoRA SFT"), ("balanced", "Balanced LoRA SFT"),
+                        ("goldfirst", "Gold-first LoRA SFT (control)")):
         if runs[cond]:
             models[label] = {p: np.mean([vec(r, p) for _, r in runs[cond]], axis=0) for p in POS}
             status[label] = (f"mean of {len(runs[cond])} seeds" if len(runs[cond]) >= planned_seeds
@@ -230,6 +231,11 @@ def cmd_compare(authors_dir: Path, root: Path, out_dir: Path, planned_seeds: int
         add("Balanced vs Standard: change in gap", lambda i: gap(Bm, i) - gap(S, i))
         for p in POS:
             add(f"Balanced vs Standard: accuracy at gold {p}", lambda i, p=p: Bm[p][i].mean() - S[p][i].mean())
+    if "Standard LoRA SFT" in models and "Gold-first LoRA SFT (control)" in models:
+        S, G = models["Standard LoRA SFT"], models["Gold-first LoRA SFT (control)"]
+        add("Gold-first vs Standard: change in gap", lambda i: gap(G, i) - gap(S, i))
+        for p in POS:
+            add(f"Gold-first vs Standard: accuracy at gold {p}", lambda i, p=p: G[p][i].mean() - S[p][i].mean())
 
     out_dir.mkdir(parents=True, exist_ok=True)
     for fname, rows in (("evqa_final_comparison.csv", final), ("evqa_per_seed.csv", per_seed),
@@ -262,7 +268,7 @@ def main() -> int:
     ap.add_argument("--adapter", default="")
     ap.add_argument("--compare", action="store_true")
     ap.add_argument("--out", type=Path, help="results dir for --compare")
-    ap.add_argument("--planned-seeds", type=int, default=2)
+    ap.add_argument("--planned-seeds", type=int, default=3)
     a = ap.parse_args()
     if a.check:
         return cmd_check(a.authors_dir, a.root)

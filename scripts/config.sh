@@ -36,7 +36,8 @@ export REPRO_TIME="${REPRO_TIME:-24:00:00}"
 
 # ---- experiment constants (from the authors' P17 protocol) ---------------
 export SEED=42
-export INFOSEEK_N_EXPECTED=496   # authors' reported n (500 drawn, 4 excluded); see lae/recover_subset.py
+export INFOSEEK_N_EXPECTED=496  # authors' reported n (500 drawn, 4 excluded); see lae/recover_subset.py
+export INFOSEEK_N_KEPT="${INFOSEEK_N_KEPT:-495}"   # questions kept after the authors' distractor rule on this GPU (495 on Unicorn RTX 6000 Ada; 496 on the Lambda H100)
 export PYTHONUNBUFFERED=1   # show Python progress in logs immediately
 
 # ---- stage 2: training data
@@ -45,6 +46,13 @@ export TRAIN_POOL="${TRAIN_POOL:-150000}"
 export TRAIN_N="${TRAIN_N:-20000}"
 export DEV_N="${DEV_N:-500}"
 export BALANCED_SEEDS="${BALANCED_SEEDS:-0 1}"
+export TRAIN_SEEDS="${TRAIN_SEEDS:-0 1 2}"          # seeds for standard and balanced runs
+export GOLDFIRST_SEEDS="${GOLDFIRST_SEEDS:-0 1 2}"  # seeds for the gold-always-first control
+export MIXED_DATA_DIR="${MIXED_DATA_DIR:-$PROJ/data/train_mixed}"   # InfoSeek + E-VQA training data
+export MIXED_POOL="${MIXED_POOL:-40000}"
+export MIXED_PER_SOURCE_TRAIN="${MIXED_PER_SOURCE_TRAIN:-10000}"     # 10,000 + 10,000 = same 20,000 as the other runs
+export MIXED_PER_SOURCE_DEV="${MIXED_PER_SOURCE_DEV:-250}"
+export MIXED_SEEDS="${MIXED_SEEDS:-0 1 2}"                            # mixed_standard and mixed_balanced_s<S> runs
 export BUILD_TIME="${BUILD_TIME:-24:00:00}"
 export BUILD_BATCH="${BUILD_BATCH:-32}"
 

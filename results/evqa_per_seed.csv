@@ -1,6 +1,11 @@
 run,gold_first,gold_middle,gold_last,gap
-frozen,63.0,39.6,35.8,27.2
-standard_seed0,28.4,27.4,24.4,4.0
-standard_seed1,26.0,26.2,23.6,2.4
-balanced_s0_seed0,28.0,29.4,27.8,0.2
-balanced_s1_seed1,27.0,26.8,27.4,-0.4
+frozen,64.4,39.0,35.2,29.2
+standard_seed0,27.6,25.4,24.0,3.6
+standard_seed1,29.0,25.8,25.0,4.0
+standard_seed2,26.4,25.6,25.0,1.4
+balanced_s0_seed0,27.0,26.4,26.8,0.2
+balanced_s1_seed1,28.0,27.6,26.8,1.2
+balanced_s2_seed2,28.2,27.2,26.2,2.0
+goldfirst_seed0,36.4,12.2,12.8,23.6
+goldfirst_seed1,39.2,11.4,12.2,27.0
+goldfirst_seed2,38.4,10.8,10.8,27.6

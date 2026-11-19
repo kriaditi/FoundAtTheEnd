@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=ak2877@cornell.edu
+# GPU job: build the mixed InfoSeek + E-VQA training data (lae/build_mixed_data.py).
+# Resumable: candidates, images and retrieval are cached under $MIXED_DATA_DIR.
+set -euo pipefail
+: "${PROJ:?PROJ not set; run via scripts/02d_build_mixed.sh}"
+source "$PROJ/scripts/config.sh"
+source "$PROJ/scripts/lib.sh"
+mkdirs
+
+STAGE=build_mixed
+trap 'rc=$?; [[ $rc -ne 0 ]] && mark_failed $STAGE "exit $rc job ${SLURM_JOB_ID:-local}"; exit $rc' EXIT
+log "host $(hostname)  job ${SLURM_JOB_ID:-local}  restart ${SLURM_RESTART_COUNT:-0}"
+nvidia-smi --query-gpu=name,memory.used,memory.total --format=csv,noheader | sed 's/^/   GPU: /'
+
+need_file "$TRAIN_DATA_DIR/final/manifest.json" "(InfoSeek data not built)"
+need_file "$AUTHORS_DIR/data/index/preflmr_evqa/manifest.json" "(run the frozen E-VQA evaluation first: it builds the index)"
+cd "$AUTHORS_DIR"
+"$PY" "$PROJ/lae/build_mixed_data.py" \
+  --authors-dir "$AUTHORS_DIR" --infoseek-final "$TRAIN_DATA_DIR/final" --out "$MIXED_DATA_DIR" \
+  --pool "$MIXED_POOL" --per-source-train "$MIXED_PER_SOURCE_TRAIN" --per-source-dev "$MIXED_PER_SOURCE_DEV" \
+  --balanced-seeds $MIXED_SEEDS --seed "$SEED" --batch "$BUILD_BATCH"
+
+need_file "$MIXED_DATA_DIR/final/build_stats.json"
+mark_ok $STAGE "job ${SLURM_JOB_ID:-local} -> $MIXED_DATA_DIR/final"
+log "build_mixed OK"

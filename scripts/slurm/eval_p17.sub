@@ -32,11 +32,11 @@ cd "$AUTHORS_DIR"
 LAE_ADAPTER="${ADAPTER:-}" P17_OUT="$OUT" P17_N_EXPECTED="$INFOSEEK_N_EXPECTED" \
   "$PY" scripts/run_p17_reader_bottleneck.py
 need_file "$OUT/per_cell_summary.json" "(P17 did not finish)"
-"$PY" - "$OUT/per_cell_summary.json" "${ADAPTER:-}" <<'EOF'
+"$PY" - "$OUT/per_cell_summary.json" "${ADAPTER:-}" "$INFOSEEK_N_KEPT" <<'EOF'
 import json, sys
 s = json.load(open(sys.argv[1]))
 assert s.get("lae_adapter", "") == sys.argv[2], f"summary says adapter {s.get('lae_adapter')!r}, expected {sys.argv[2]!r}"
-assert s["n_kept_primary"] == 496, s["n_kept_primary"]
+assert s["n_kept_primary"] == int(sys.argv[3]), (s["n_kept_primary"], sys.argv[3])
 print(f"   verified: adapter={sys.argv[2] or 'none'}  n={s['n_kept_primary']}  k10 first/middle/last = "
       + " / ".join(f"{100*s['primary'][c]['acc']:.2f}" for c in ("k10_first", "k10_middle", "k10_last")))
 EOF

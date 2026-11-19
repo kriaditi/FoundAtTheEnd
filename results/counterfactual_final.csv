@@ -1,0 +1,5 @@
+model,status,none,gold_removed,natural,natural_gold_in_top10,natural_gold_absent
+Frozen Qwen,measured,24.44,16.77,29.49,48.05,9.62
+Standard LoRA SFT,mean of 3 seeds,29.36,26.33,41.08,61.59,19.11
+Balanced LoRA SFT,mean of 3 seeds,30.91,26.53,41.14,62.63,18.13
+Gold-first LoRA SFT (control),mean of 3 seeds,30.51,14.28,24.85,39.58,9.07

@@ -1,6 +1,7 @@
 model,seeds,status,gold_first,gold_middle,gold_last,first_minus_last_gap
 Paper reproduction (authors' reported),-,reported in paper,45.16,32.26,28.63,16.53
-Frozen Qwen,"measured (1 run, greedy decoding)","measured (1 run, greedy decoding)",45.56,33.27,28.83,16.73
-Standard LoRA SFT,mean of 2 seeds,mean of 2 seeds,54.84,55.24,53.93,0.91
-Balanced LoRA SFT,mean of 2 seeds,mean of 2 seeds,54.33,55.54,54.23,0.1
-"Isolated reading (frozen, mean log-prob)",measured (order-invariant by construction),measured (order-invariant by construction),30.85,30.85,30.85,0.0
+Frozen Qwen,"measured (1 run, greedy decoding)","measured (1 run, greedy decoding)",45.05,32.53,29.49,15.56
+Standard LoRA SFT,mean of 3 seeds,mean of 3 seeds,54.68,55.22,53.94,0.74
+Balanced LoRA SFT,mean of 3 seeds,mean of 3 seeds,54.07,56.03,54.61,-0.54
+Gold-first LoRA SFT (control),mean of 3 seeds,mean of 3 seeds,69.63,14.14,14.21,55.42
+"Isolated reading (frozen, mean log-prob)",measured (order-invariant by construction),measured (order-invariant by construction),31.11,31.11,31.11,0.0
