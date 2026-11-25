@@ -1,0 +1,10 @@
+{
+  "mixed_balanced_s0/dev.jsonl": "0ec2abf6b12e9f1d11381af22ba6c1ea3c7622ef2d3909062ffb377d9dece48d",
+  "mixed_balanced_s0/train.jsonl": "3fb54e18511dc50b88a01217306f71113acaf0e06bf345da3a5c9b8567ebe20e",
+  "mixed_balanced_s1/dev.jsonl": "7cb93346965ecf8658ea0aaed07dec4396d3edbe3ef758aa67524dd3d9abeef4",
+  "mixed_balanced_s1/train.jsonl": "5fd0180a7b619a41daba4244b74aa765af7936d0ab5d217cad3b002f25a43185",
+  "mixed_balanced_s2/dev.jsonl": "d5c4560300d91c935f1d5375ef673227519285d98e83d8380d02a5d4a7ba574e",
+  "mixed_balanced_s2/train.jsonl": "6089c1b8cc04a9366eb657068d3f508f1014db53393b242d18ca8549968cb2c3",
+  "mixed_standard/dev.jsonl": "7e27b08cd3527562f5c82a95555b69cc62093427ad98f66ed7091cdf940f51f4",
+  "mixed_standard/train.jsonl": "deb8f82c228edbce8775d1fe4f83fc45890981e0d358d25150525b4600ea3819"
+}

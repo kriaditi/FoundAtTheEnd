@@ -1,0 +1,12 @@
+{
+  "balanced_s0/dev.jsonl": "34714bec51a6890d39bae97c833e6462bed1b96da4cd50f913685eb1d912289d",
+  "balanced_s0/train.jsonl": "585520b98cc8138c211efe5ed164492e86c43816889e40c3313affcc58cb11ce",
+  "balanced_s1/dev.jsonl": "3cf8bde14a530319108d50b3288e06aa4ec23ca66a40a9999c31115256743867",
+  "balanced_s1/train.jsonl": "e87aff67de873085496f509d6c42226fe967a59c589906c1e2a9fca66c4c6da3",
+  "balanced_s2/dev.jsonl": "6835d7c5482a5bfa1239e02c89cdae71f0b2e486a0c51e4b13fed25a06bd0975",
+  "balanced_s2/train.jsonl": "34647d093e4322b9e213ee0d4fb4dd7960d8ae227715fff56390a672b74ec52b",
+  "goldfirst/dev.jsonl": "b1b868a099912bf0e00f178f9f428d866aaee8853cfd63d9bdcd00dbd3f91f24",
+  "goldfirst/train.jsonl": "3b82edb946681f14522b8feb2e8461fa6eb4db78a1dc66a6d25090edf6cc9068",
+  "standard/dev.jsonl": "9f3de4db0a7830f97288cb7cfe7e1286c6efbddd8cf087391e251819b94861dc",
+  "standard/train.jsonl": "5c032ae0dc103785b37a461260428f15daca1a66dca6db90a6c4bd93fb5b76cd"
+}
