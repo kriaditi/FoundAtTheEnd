@@ -24,7 +24,14 @@ export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True   # avoid OOM from fragm
 extra=()
 if [[ "$SMOKE" == 1 ]]; then extra+=(--smoke); fi
 DATA="$TRAIN_DATA_DIR/final"
-if [[ "$RUN_COND" == mixed_* ]]; then DATA="$MIXED_DATA_DIR/final"; fi   # InfoSeek + E-VQA conditions
+if [[ "$RUN_COND" == mixed_* ]]; then
+  DATA="$MIXED_DATA_DIR/final"   # InfoSeek + E-VQA conditions
+  # E-VQA contexts are up to ~3x longer than InfoSeek's (capped at MIXED_MAX_TEXT_TOKENS at build time):
+  # same effective batch (16), smaller micro-batch so the longest examples fit in 48 GB.
+  PER_DEVICE_BATCH="${MIXED_PER_DEVICE_BATCH:-1}"
+  GRAD_ACCUM="${MIXED_GRAD_ACCUM:-16}"
+  log "mixed condition: micro-batch $PER_DEVICE_BATCH x accum $GRAD_ACCUM"
+fi
 cd "$AUTHORS_DIR"
 "$PY" "$PROJ/lae/train_lora.py" \
   --authors-dir "$AUTHORS_DIR" --data-dir "$DATA" \

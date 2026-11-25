@@ -3,3 +3,5 @@ Frozen Qwen,measured,24.44,16.77,29.49,48.05,9.62
 Standard LoRA SFT,mean of 3 seeds,29.36,26.33,41.08,61.59,19.11
 Balanced LoRA SFT,mean of 3 seeds,30.91,26.53,41.14,62.63,18.13
 Gold-first LoRA SFT (control),mean of 3 seeds,30.51,14.28,24.85,39.58,9.07
+Mixed-data standard SFT,mean of 3 seeds,30.71,26.2,41.35,62.76,18.41
+Mixed-data balanced SFT,mean of 3 seeds,30.98,26.87,41.14,61.33,19.53

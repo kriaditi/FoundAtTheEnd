@@ -3,6 +3,8 @@ Frozen Qwen: gap (first - last),29.2,25.0,33.6,True,500
 Standard LoRA SFT: gap (first - last),3.0,1.13,4.87,True,500
 Balanced LoRA SFT: gap (first - last),1.13,-0.53,2.8,False,500
 Gold-first LoRA SFT (control): gap (first - last),26.07,22.33,29.73,True,500
+Mixed-data standard SFT: gap (first - last),12.8,10.13,15.47,True,500
+Mixed-data balanced SFT: gap (first - last),-4.4,-6.53,-2.4,True,500
 Standard LoRA SFT vs Frozen: change in gap,-26.2,-30.67,-21.8,True,500
 Standard LoRA SFT vs Frozen: accuracy at gold first,-36.73,-41.0,-32.53,True,500
 Standard LoRA SFT vs Frozen: accuracy at gold middle,-13.4,-17.6,-9.13,True,500
@@ -15,6 +17,14 @@ Gold-first LoRA SFT (control) vs Frozen: change in gap,-3.13,-8.07,1.8,False,500
 Gold-first LoRA SFT (control) vs Frozen: accuracy at gold first,-26.4,-30.87,-21.93,True,500
 Gold-first LoRA SFT (control) vs Frozen: accuracy at gold middle,-27.53,-31.53,-23.67,True,500
 Gold-first LoRA SFT (control) vs Frozen: accuracy at gold last,-23.27,-27.07,-19.6,True,500
+Mixed-data standard SFT vs Frozen: change in gap,-16.4,-20.73,-12.13,True,500
+Mixed-data standard SFT vs Frozen: accuracy at gold first,10.73,6.67,14.8,True,500
+Mixed-data standard SFT vs Frozen: accuracy at gold middle,29.47,25.07,33.87,True,500
+Mixed-data standard SFT vs Frozen: accuracy at gold last,27.13,23.0,31.27,True,500
+Mixed-data balanced SFT vs Frozen: change in gap,-33.6,-38.4,-28.87,True,500
+Mixed-data balanced SFT vs Frozen: accuracy at gold first,1.8,-2.53,6.13,False,500
+Mixed-data balanced SFT vs Frozen: accuracy at gold middle,32.07,27.73,36.47,True,500
+Mixed-data balanced SFT vs Frozen: accuracy at gold last,35.4,31.07,39.67,True,500
 Balanced vs Standard: change in gap,-1.87,-3.47,-0.27,True,500
 Balanced vs Standard: accuracy at gold first,0.07,-1.33,1.47,False,500
 Balanced vs Standard: accuracy at gold middle,1.47,0.07,2.87,True,500
@@ -23,3 +33,11 @@ Gold-first vs Standard: change in gap,23.07,19.2,27.0,True,500
 Gold-first vs Standard: accuracy at gold first,10.33,7.47,13.33,True,500
 Gold-first vs Standard: accuracy at gold middle,-14.13,-17.4,-10.87,True,500
 Gold-first vs Standard: accuracy at gold last,-12.73,-16.0,-9.53,True,500
+Mixed standard vs Standard: change in gap,9.8,6.93,12.8,True,500
+Mixed standard vs Standard: accuracy at gold first,47.47,43.46,51.67,True,500
+Mixed standard vs Standard: accuracy at gold middle,42.87,38.53,47.27,True,500
+Mixed standard vs Standard: accuracy at gold last,37.67,33.4,41.93,True,500
+Mixed balanced vs Mixed standard: change in gap,-17.2,-20.53,-13.93,True,500
+Mixed balanced vs Mixed standard: accuracy at gold first,-8.93,-11.4,-6.67,True,500
+Mixed balanced vs Mixed standard: accuracy at gold middle,2.6,0.86,4.33,True,500
+Mixed balanced vs Mixed standard: accuracy at gold last,8.27,6.2,10.4,True,500

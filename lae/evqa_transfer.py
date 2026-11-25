@@ -175,19 +175,20 @@ def cmd_compare(authors_dir: Path, root: Path, out_dir: Path, planned_seeds: int
     frozen = load(root / "frozen")
     qids = sorted(frozen["first"])
     n = len(qids)
-    runs = {"standard": [], "balanced": [], "goldfirst": []}
+    runs = {"standard": [], "balanced": [], "goldfirst": [], "mixed_standard": [], "mixed_balanced": []}
     per_seed = []
     for d in sorted(root.iterdir()):
-        m = re.fullmatch(r"(standard|balanced_s\d+|goldfirst)_seed(\d+)", d.name)
+        m = re.fullmatch(r"(standard|balanced_s\d+|goldfirst|mixed_standard|mixed_balanced_s\d+)_seed(\d+)", d.name)
         if m and (d / "summary.json").exists():
             r = load(d)
             assert all(set(r[p]) == set(qids) for p in POS), f"{d.name}: question set differs"
-            runs["balanced" if m.group(1).startswith("balanced") else m.group(1)].append((d.name, r))
+            runs[re.sub(r"_s\d+$", "", m.group(1))].append((d.name, r))
     vec = lambda cells, p: np.array([cells[p][q] for q in qids])
     models = {"Frozen Qwen": {p: vec(frozen, p) for p in POS}}
     status = {"Frozen Qwen": "measured"}
     for cond, label in (("standard", "Standard LoRA SFT"), ("balanced", "Balanced LoRA SFT"),
-                        ("goldfirst", "Gold-first LoRA SFT (control)")):
+                        ("goldfirst", "Gold-first LoRA SFT (control)"),
+                        ("mixed_standard", "Mixed-data standard SFT"), ("mixed_balanced", "Mixed-data balanced SFT")):
         if runs[cond]:
             models[label] = {p: np.mean([vec(r, p) for _, r in runs[cond]], axis=0) for p in POS}
             status[label] = (f"mean of {len(runs[cond])} seeds" if len(runs[cond]) >= planned_seeds
@@ -236,6 +237,16 @@ def cmd_compare(authors_dir: Path, root: Path, out_dir: Path, planned_seeds: int
         add("Gold-first vs Standard: change in gap", lambda i: gap(G, i) - gap(S, i))
         for p in POS:
             add(f"Gold-first vs Standard: accuracy at gold {p}", lambda i, p=p: G[p][i].mean() - S[p][i].mean())
+    if "Mixed-data standard SFT" in models and "Standard LoRA SFT" in models:   # the transfer fix
+        S, M = models["Standard LoRA SFT"], models["Mixed-data standard SFT"]
+        add("Mixed standard vs Standard: change in gap", lambda i: gap(M, i) - gap(S, i))
+        for p in POS:
+            add(f"Mixed standard vs Standard: accuracy at gold {p}", lambda i, p=p: M[p][i].mean() - S[p][i].mean())
+    if "Mixed-data balanced SFT" in models and "Mixed-data standard SFT" in models:
+        M, MB = models["Mixed-data standard SFT"], models["Mixed-data balanced SFT"]
+        add("Mixed balanced vs Mixed standard: change in gap", lambda i: gap(MB, i) - gap(M, i))
+        for p in POS:
+            add(f"Mixed balanced vs Mixed standard: accuracy at gold {p}", lambda i, p=p: MB[p][i].mean() - M[p][i].mean())
 
     out_dir.mkdir(parents=True, exist_ok=True)
     for fname, rows in (("evqa_final_comparison.csv", final), ("evqa_per_seed.csv", per_seed),

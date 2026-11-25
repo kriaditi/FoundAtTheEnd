@@ -10,7 +10,10 @@ the InfoSeek-only runs: the same 20,000 train + 500 dev rows, half from each sou
       - random pool (seed 42), images extracted from the two E-VQA archives
       - frozen PreFLMR, top 20, over the SAME index the evaluation uses (data/index/preflmr_evqa,
         51,462 passages; every train positive is in it) and the authors' query form
-      - kept: exactly one positive in the top 10 -> natural gold slot
+      - kept: exactly one positive in the top 10 -> natural gold slot, AND prompt text
+        (system prompt + question + 10 passages) at most --max-text-tokens tokens (default
+        5,000; E-VQA passages are long Wikipedia sections, p95 ~5,800 and max ~11,500 tokens
+        without the cap, far beyond InfoSeek's ~3,000). The dropped fraction is recorded.
   * Conditions: mixed_standard (natural slots) and mixed_balanced_s<S> (gold moved to a slot
     drawn so each of the 10 slots gets exactly 2,000 train / 50 dev rows, same RNG scheme as
     balanced_s<S>). The 9 distractors keep their order.
@@ -156,11 +159,11 @@ def phase_images(p20, cands: list[dict], image_dir: Path, stats: dict) -> None:
 
 
 # ---------------------------------------------------------------- phase 3
-def phase_retrieve(args, p20, cands: list[dict], image_dir: Path, out: Path, stats: dict) -> dict[str, list[str]]:
+def phase_retrieve(args, p20, cands: list[dict], image_dir: Path, out: Path, stats: dict,
+                   target: int) -> dict[str, list[str]]:
     import torch
     from tts_kbvqa.retrieval.preflmr import PreFLMRRetriever
     torch.backends.cuda.enable_cudnn_sdp(False)
-    target = args.per_source_train + args.per_source_dev
     path = out / f"evqa_retrieval_top{TOP}.jsonl"
     done: dict[str, list[str]] = {r["qid"]: r["top"] for r in read_jsonl(path)} if path.exists() else {}
     usable = [r for r in cands if (image_dir / r["img_path"]).is_file()]
@@ -209,8 +212,24 @@ def phase_retrieve(args, p20, cands: list[dict], image_dir: Path, out: Path, sta
 
 
 # ---------------------------------------------------------------- phase 4
-def evqa_items(args, cands, done, image_dir: Path) -> list[dict]:
-    items = []
+def make_length_fn(args, p20):
+    """Prompt text length in tokens, measured as the trainer builds it (image tokens excluded)."""
+    from transformers import AutoProcessor
+    from tts_kbvqa.reader.qwen import SYSTEM_PROMPT, passage_block
+    tok = AutoProcessor.from_pretrained("Qwen/Qwen2.5-VL-7B-Instruct").tokenizer
+    id_to_passage = {p.passage_id: p for p in p20.evqa_data.load_passages(p20.evqa_data.download_passages_parquet())}
+    cache: dict[str, int] = {}
+
+    def length(r: dict, top10: list[str]) -> int:
+        if r["question_id"] not in cache:
+            text = SYSTEM_PROMPT + r["question"] + passage_block([id_to_passage[p] for p in top10])
+            cache[r["question_id"]] = len(tok(text)["input_ids"])
+        return cache[r["question_id"]]
+    return length
+
+
+def evqa_items(args, cands, done, image_dir: Path, length_fn, stats: dict) -> list[dict]:
+    items, too_long, qualifying = [], 0, 0
     for r in cands:
         top = done.get(r["question_id"])
         if top is None or not (image_dir / r["img_path"]).is_file():
@@ -218,12 +237,20 @@ def evqa_items(args, cands, done, image_dir: Path) -> list[dict]:
         nat = qualify(top, r["pos_item_ids"])
         if nat is None:
             continue
+        qualifying += 1
+        if length_fn(r, top[:K]) > args.max_text_tokens:
+            too_long += 1
+            continue
         items.append({"qid": r["question_id"], "question": r["question"], "answers": r["answers"],
                       "target": r["target"], "question_type": r.get("question_type"), "img_path": r["img_path"],
                       "passage_ids": top[:K], "gold_pid": top[nat], "gold_slot": nat, "natural_slot": nat,
                       "pos_item_ids": r["pos_item_ids"], "source": "evqa", "image_root": EVQA_IMAGE_ROOT})
         if len(items) == args.per_source_train + args.per_source_dev:
             break
+    stats["evqa_qualifying_seen"] = qualifying
+    stats["evqa_dropped_too_long"] = too_long
+    stats["evqa_dropped_too_long_frac"] = round(too_long / max(qualifying, 1), 4)
+    stats["max_text_tokens"] = args.max_text_tokens
     return items
 
 
@@ -315,6 +342,8 @@ def main() -> int:
     ap.add_argument("--balanced-seeds", type=int, nargs="+", default=[0, 1, 2])
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--batch", type=int, default=32)
+    ap.add_argument("--max-text-tokens", type=int, default=5000,
+                    help="drop E-VQA contexts whose prompt text exceeds this many tokens")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     t_start = time.time()
@@ -330,15 +359,26 @@ def main() -> int:
     p20 = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(p20)
     image_dir = args.authors_dir / EVQA_IMAGE_ROOT
-    assert image_dir == p20.IMAGE_DIR, (image_dir, p20.IMAGE_DIR)
+    assert image_dir.resolve() == p20.IMAGE_DIR.resolve(), (image_dir, p20.IMAGE_DIR)
 
     stats: dict = {"design": "see lae/build_mixed_data.py docstring", "seed": args.seed, "k": K, "retrieve_top": TOP,
                    "per_source_train": args.per_source_train, "per_source_dev": args.per_source_dev,
                    "infoseek_source_manifest": {k: v for k, v in man_is.items() if k.startswith("standard/")}}
     cands = phase_candidates(args, p20, args.out, stats)
     phase_images(p20, cands, image_dir, stats)
-    done = phase_retrieve(args, p20, cands, image_dir, args.out, stats)
-    items = evqa_items(args, cands, done, image_dir)
+    need = args.per_source_train + args.per_source_dev
+    length_fn = make_length_fn(args, p20)
+    target = need
+    while True:
+        done = phase_retrieve(args, p20, cands, image_dir, args.out, stats, target)
+        items = evqa_items(args, cands, done, image_dir, length_fn, stats)
+        if len(items) >= need:
+            break
+        retrieved = sum(1 for r in cands if r["question_id"] in done)
+        if retrieved >= len(cands):
+            raise SystemExit(f"pool exhausted: {len(items)} short qualifying items, need {need}; raise --pool")
+        target += int((need - len(items)) * 1.5) + 50   # retrieve more, then re-filter
+        log(f"  {len(items)} of {need} items after the length cap; retrieving more (target {target})")
     phase_build(args, items, args.out, stats)
     errors = phase_check(args, args.out, stats)
 

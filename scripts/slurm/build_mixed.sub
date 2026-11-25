@@ -20,7 +20,8 @@ cd "$AUTHORS_DIR"
 "$PY" "$PROJ/lae/build_mixed_data.py" \
   --authors-dir "$AUTHORS_DIR" --infoseek-final "$TRAIN_DATA_DIR/final" --out "$MIXED_DATA_DIR" \
   --pool "$MIXED_POOL" --per-source-train "$MIXED_PER_SOURCE_TRAIN" --per-source-dev "$MIXED_PER_SOURCE_DEV" \
-  --balanced-seeds $MIXED_SEEDS --seed "$SEED" --batch "$BUILD_BATCH"
+  --balanced-seeds $MIXED_SEEDS --seed "$SEED" --batch "$BUILD_BATCH" \
+  --max-text-tokens "${MIXED_MAX_TEXT_TOKENS:-5000}"
 
 need_file "$MIXED_DATA_DIR/final/build_stats.json"
 mark_ok $STAGE "job ${SLURM_JOB_ID:-local} -> $MIXED_DATA_DIR/final"

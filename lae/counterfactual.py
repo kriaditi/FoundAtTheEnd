@@ -37,7 +37,8 @@ K = 10
 MAX_NEW = 32           # READER_MAX_NEW in the authors' P17 runner
 B, SEED = 10_000, 42
 COND_LABEL = {"frozen": "Frozen Qwen", "standard": "Standard LoRA SFT", "balanced": "Balanced LoRA SFT",
-              "goldfirst": "Gold-first LoRA SFT (control)"}
+              "goldfirst": "Gold-first LoRA SFT (control)",
+              "mixed_standard": "Mixed-data standard SFT", "mixed_balanced": "Mixed-data balanced SFT"}
 
 
 def log(msg: str) -> None:
@@ -182,9 +183,9 @@ def cmd_compare(args) -> int:
             continue
         if d.name == "frozen":
             runs["frozen"].append((d.name, load(d))); continue
-        m = re.fullmatch(r"(standard|balanced_s\d+|goldfirst)_seed(\d+)", d.name)
+        m = re.fullmatch(r"(standard|balanced_s\d+|goldfirst|mixed_standard|mixed_balanced_s\d+)_seed(\d+)", d.name)
         if m:
-            runs["balanced" if m.group(1).startswith("balanced") else m.group(1)].append((d.name, load(d)))
+            runs[re.sub(r"_s\d+$", "", m.group(1))].append((d.name, load(d)))
     if not runs["frozen"]:
         raise SystemExit("no frozen counterfactual run found (runs/counterfactual/frozen)")
 
@@ -231,6 +232,10 @@ def cmd_compare(args) -> int:
     if S in models and Bm in models:
         for c in CONDS:
             add(f"{Bm} vs {S}: {c}", lambda i, c=c: models[Bm][c][i].mean() - models[S][c][i].mean())
+    MS = COND_LABEL["mixed_standard"]
+    if S in models and MS in models:
+        for c in CONDS:
+            add(f"{MS} vs {S}: {c}", lambda i, c=c: models[MS][c][i].mean() - models[S][c][i].mean())
 
     args.out.mkdir(parents=True, exist_ok=True)
     for fname, rows_ in (("counterfactual_final.csv", final), ("counterfactual_per_seed.csv", per_seed),

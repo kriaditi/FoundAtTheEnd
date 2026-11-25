@@ -12,6 +12,17 @@ Gold-first LoRA SFT (control): gold_removed - none (evidence from distractors al
 Gold-first LoRA SFT (control) vs Frozen: none,6.06,2.76,9.36,True,495
 Gold-first LoRA SFT (control) vs Frozen: gold_removed,-2.49,-5.59,0.61,False,495
 Gold-first LoRA SFT (control) vs Frozen: natural,-4.65,-8.62,-0.74,True,495
+Mixed-data standard SFT: gold_removed - none (evidence from distractors alone),-4.51,-7.68,-1.35,True,495
+Mixed-data standard SFT vs Frozen: none,6.26,3.23,9.36,True,495
+Mixed-data standard SFT vs Frozen: gold_removed,9.43,6.2,12.66,True,495
+Mixed-data standard SFT vs Frozen: natural,11.85,8.28,15.56,True,495
+Mixed-data balanced SFT: gold_removed - none (evidence from distractors alone),-4.11,-7.14,-1.01,True,495
+Mixed-data balanced SFT vs Frozen: none,6.53,3.43,9.7,True,495
+Mixed-data balanced SFT vs Frozen: gold_removed,10.1,6.8,13.54,True,495
+Mixed-data balanced SFT vs Frozen: natural,11.65,7.88,15.49,True,495
 Balanced LoRA SFT vs Standard LoRA SFT: none,1.55,0.34,2.83,True,495
 Balanced LoRA SFT vs Standard LoRA SFT: gold_removed,0.2,-1.14,1.55,False,495
 Balanced LoRA SFT vs Standard LoRA SFT: natural,0.07,-1.21,1.41,False,495
+Mixed-data standard SFT vs Standard LoRA SFT: none,1.35,-0.27,3.03,False,495
+Mixed-data standard SFT vs Standard LoRA SFT: gold_removed,-0.13,-1.82,1.55,False,495
+Mixed-data standard SFT vs Standard LoRA SFT: natural,0.27,-1.41,2.02,False,495

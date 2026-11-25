@@ -29,9 +29,10 @@ import numpy as np
 B, SEED = 10_000, 42
 POS = ("first", "middle", "last")
 KS = (1, 3, 5, 10, 20)
-CONDS = ("standard", "balanced", "goldfirst")
+CONDS = ("standard", "balanced", "goldfirst", "mixed_standard", "mixed_balanced")
 COND_LABEL = {"standard": "Standard LoRA SFT", "balanced": "Balanced LoRA SFT",
-              "goldfirst": "Gold-first LoRA SFT (control)"}
+              "goldfirst": "Gold-first LoRA SFT (control)",
+              "mixed_standard": "Mixed-data standard SFT", "mixed_balanced": "Mixed-data balanced SFT"}
 
 
 def load_run(run_dir: Path) -> dict:
@@ -88,14 +89,14 @@ def main() -> int:
     # trained runs: <condition>_seed<S>, condition "standard", "balanced_s<S>" or "goldfirst"
     runs: dict[str, list[tuple[int, str, dict]]] = {c: [] for c in CONDS}
     for d in sorted(args.eval_root.glob("*_seed*")):
-        m = re.fullmatch(r"(standard|balanced_s\d+|goldfirst)_seed(\d+)", d.name)
+        m = re.fullmatch(r"(standard|balanced_s\d+|goldfirst|mixed_standard|mixed_balanced_s\d+)_seed(\d+)", d.name)
         if not m or not (d / "per_cell_summary.json").exists():
             continue
         run = load_run(d)
         for cell, dd in run["cells"].items():
             if set(dd) != set(qids):
                 raise SystemExit(f"{d.name}/{cell}: question set differs from the frozen run")
-        cond = "balanced" if m.group(1).startswith("balanced") else m.group(1)
+        cond = re.sub(r"_s\d+$", "", m.group(1))          # balanced_s0 -> balanced, mixed_balanced_s1 -> mixed_balanced
         runs[cond].append((int(m.group(2)), d.name, run))
 
     # --- per-seed table
@@ -201,6 +202,17 @@ def main() -> int:
             add(f"[k=20] {b} vs {s}: accuracy at gold {p}", lambda i, p=p: V20[b][p][i].mean() - V20[s][p][i].mean())
     if g in V20 and s in V20:
         add(f"[k=20] {g} vs {s}: change in gap", lambda i: g20(g, i) - g20(s, i))
+    ms, mb = COND_LABEL["mixed_standard"], COND_LABEL["mixed_balanced"]
+    if ms in models and s in models:   # does adding E-VQA data cost anything in-domain?
+        add(f"{ms} vs {s}: change in gap",
+            lambda i: (V[ms]["first"][i].mean() - V[ms]["last"][i].mean()) - (V[s]["first"][i].mean() - V[s]["last"][i].mean()))
+        for p in POS:
+            add(f"{ms} vs {s}: accuracy at gold {p}", lambda i, p=p: V[ms][p][i].mean() - V[s][p][i].mean())
+    if mb in models and ms in models:
+        add(f"{mb} vs {ms}: change in gap",
+            lambda i: (V[mb]["first"][i].mean() - V[mb]["last"][i].mean()) - (V[ms]["first"][i].mean() - V[ms]["last"][i].mean()))
+        for p in POS:
+            add(f"{mb} vs {ms}: accuracy at gold {p}", lambda i, p=p: V[mb][p][i].mean() - V[ms][p][i].mean())
 
     # --- costs
     costs = [{"run": "p17_repro (frozen)", "train_hours": 0, "train_s_per_step": "-", "train_peak_gpu_gb": "-",
