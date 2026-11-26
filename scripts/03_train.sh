@@ -9,7 +9,8 @@
 # Run order puts one seed of each condition first, so a (labelled preliminary)
 # single-seed comparison exists before the later seeds finish.
 # Conditions: standard and balanced_s<S> for every seed in TRAIN_SEEDS, plus the
-# gold-always-first control (goldfirst) for every seed in GOLDFIRST_SEEDS (config.sh).
+# gold-always-first control (goldfirst) for every seed in GOLDFIRST_SEEDS, the mixed
+# conditions for MIXED_SEEDS, and the late-exposure sweep last<P>_s<S> for LATE_RATES x LATE_SEEDS (config.sh).
 set -euo pipefail
 
 PROJ="${PROJ:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
@@ -54,6 +55,7 @@ RUNS=()
 for s in $TRAIN_SEEDS; do RUNS+=("standard:$s" "balanced_s$s:$s"); done
 for s in $GOLDFIRST_SEEDS; do RUNS+=("goldfirst:$s"); done
 for s in $MIXED_SEEDS; do RUNS+=("mixed_standard:$s" "mixed_balanced_s$s:$s"); done
+for s in $LATE_SEEDS; do for p in $LATE_RATES; do RUNS+=("last${p}_s$s:$s"); done; done
 if [[ $SMOKE == 1 ]]; then
   RUNS=("standard:0" "balanced_s0:0")
   [[ -f "$MIXED_DATA_DIR/final/mixed_standard/train.jsonl" ]] && RUNS+=("mixed_standard:0")   # exercises the two-KB path

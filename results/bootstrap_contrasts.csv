@@ -5,6 +5,9 @@ Balanced LoRA SFT: gap (first - last),-0.54,-2.15,1.08,False,495
 Gold-first LoRA SFT (control): gap (first - last),55.42,51.38,59.6,True,495
 Mixed-data standard SFT: gap (first - last),-0.54,-2.29,1.21,False,495
 Mixed-data balanced SFT: gap (first - last),0.2,-1.55,2.09,False,495
+Late-exposure 2% SFT: gap (first - last),4.18,2.42,6.06,True,495
+Late-exposure 4% SFT: gap (first - last),3.03,1.28,4.92,True,495
+Late-exposure 15% SFT: gap (first - last),-1.82,-3.84,0.13,False,495
 "Isolated reading (frozen, mean log-prob): gap (first - last)",0.0,0.0,0.0,False,495
 Standard LoRA SFT vs Frozen: change in gap,-14.81,-19.06,-10.84,True,495
 Standard LoRA SFT vs Frozen: accuracy at gold first,9.63,5.19,14.01,True,495
@@ -26,6 +29,18 @@ Mixed-data balanced SFT vs Frozen: change in gap,-15.35,-19.53,-11.18,True,495
 Mixed-data balanced SFT vs Frozen: accuracy at gold first,9.83,5.59,14.07,True,495
 Mixed-data balanced SFT vs Frozen: accuracy at gold middle,23.91,19.73,28.15,True,495
 Mixed-data balanced SFT vs Frozen: accuracy at gold last,25.19,20.81,29.56,True,495
+Late-exposure 2% SFT vs Frozen: change in gap,-11.38,-15.42,-7.41,True,495
+Late-exposure 2% SFT vs Frozen: accuracy at gold first,11.11,6.73,15.42,True,495
+Late-exposure 2% SFT vs Frozen: accuracy at gold middle,24.44,20.34,28.62,True,495
+Late-exposure 2% SFT vs Frozen: accuracy at gold last,22.49,18.32,26.73,True,495
+Late-exposure 4% SFT vs Frozen: change in gap,-12.53,-16.7,-8.48,True,495
+Late-exposure 4% SFT vs Frozen: accuracy at gold first,9.97,5.59,14.21,True,495
+Late-exposure 4% SFT vs Frozen: accuracy at gold middle,22.69,18.52,27.01,True,495
+Late-exposure 4% SFT vs Frozen: accuracy at gold last,22.49,18.32,26.8,True,495
+Late-exposure 15% SFT vs Frozen: change in gap,-17.37,-21.75,-13.2,True,495
+Late-exposure 15% SFT vs Frozen: accuracy at gold first,8.35,3.91,12.73,True,495
+Late-exposure 15% SFT vs Frozen: accuracy at gold middle,20.94,16.77,25.25,True,495
+Late-exposure 15% SFT vs Frozen: accuracy at gold last,25.72,21.55,29.97,True,495
 "Isolated reading (frozen, mean log-prob) vs Frozen: change in gap",-15.56,-19.6,-11.72,True,495
 "Isolated reading (frozen, mean log-prob) vs Frozen: accuracy at gold first",-13.94,-17.78,-10.1,True,495
 "Isolated reading (frozen, mean log-prob) vs Frozen: accuracy at gold middle",-1.41,-5.05,2.22,False,495
@@ -50,16 +65,34 @@ Gold-first LoRA SFT (control) vs Standard LoRA SFT: accuracy at gold last,-39.73
 [k=20] Gold-first LoRA SFT (control): gap (first - last),54.88,50.84,59.06,True,495
 [k=20] Mixed-data standard SFT: gap (first - last),3.23,1.14,5.32,True,495
 [k=20] Mixed-data balanced SFT: gap (first - last),-1.82,-3.7,0.07,False,495
+[k=20] Late-exposure 2% SFT: gap (first - last),5.52,3.7,7.41,True,495
+[k=20] Late-exposure 4% SFT: gap (first - last),4.04,2.22,5.93,True,495
+[k=20] Late-exposure 15% SFT: gap (first - last),-1.08,-2.83,0.74,False,495
 [k=20] Standard LoRA SFT vs Frozen: change in gap,-15.62,-19.87,-11.52,True,495
 [k=20] Balanced LoRA SFT vs Frozen: change in gap,-16.23,-20.27,-12.39,True,495
 [k=20] Gold-first LoRA SFT (control) vs Frozen: change in gap,38.52,33.54,43.43,True,495
 [k=20] Mixed-data standard SFT vs Frozen: change in gap,-13.13,-17.44,-8.96,True,495
 [k=20] Mixed-data balanced SFT vs Frozen: change in gap,-18.18,-22.49,-14.01,True,495
+[k=20] Late-exposure 2% SFT vs Frozen: change in gap,-10.84,-14.75,-7.07,True,495
+[k=20] Late-exposure 4% SFT vs Frozen: change in gap,-12.32,-16.57,-8.28,True,495
+[k=20] Late-exposure 15% SFT vs Frozen: change in gap,-17.44,-21.75,-13.33,True,495
 [k=20] Balanced LoRA SFT vs Standard LoRA SFT: change in gap,-0.61,-2.69,1.41,False,495
 [k=20] Balanced LoRA SFT vs Standard LoRA SFT: accuracy at gold first,0.81,-0.88,2.56,False,495
 [k=20] Balanced LoRA SFT vs Standard LoRA SFT: accuracy at gold middle,1.95,0.27,3.64,True,495
 [k=20] Balanced LoRA SFT vs Standard LoRA SFT: accuracy at gold last,1.41,-0.4,3.16,False,495
 [k=20] Gold-first LoRA SFT (control) vs Standard LoRA SFT: change in gap,54.14,49.7,58.65,True,495
+Late-exposure 2% SFT vs Standard LoRA SFT: change in gap,3.43,1.48,5.52,True,495
+Late-exposure 2% SFT vs Standard LoRA SFT: accuracy at gold first,1.48,-0.13,3.1,False,495
+Late-exposure 2% SFT vs Standard LoRA SFT: accuracy at gold middle,1.75,0.2,3.3,True,495
+Late-exposure 2% SFT vs Standard LoRA SFT: accuracy at gold last,-1.95,-3.7,-0.27,True,495
+Late-exposure 4% SFT vs Standard LoRA SFT: change in gap,2.29,0.54,4.11,True,495
+Late-exposure 4% SFT vs Standard LoRA SFT: accuracy at gold first,0.34,-1.28,1.95,False,495
+Late-exposure 4% SFT vs Standard LoRA SFT: accuracy at gold middle,0.0,-1.55,1.48,False,495
+Late-exposure 4% SFT vs Standard LoRA SFT: accuracy at gold last,-1.95,-3.43,-0.54,True,495
+Late-exposure 15% SFT vs Standard LoRA SFT: change in gap,-2.56,-4.44,-0.61,True,495
+Late-exposure 15% SFT vs Standard LoRA SFT: accuracy at gold first,-1.28,-2.9,0.34,False,495
+Late-exposure 15% SFT vs Standard LoRA SFT: accuracy at gold middle,-1.75,-3.37,-0.13,True,495
+Late-exposure 15% SFT vs Standard LoRA SFT: accuracy at gold last,1.28,-0.34,2.9,False,495
 Mixed-data standard SFT vs Standard LoRA SFT: change in gap,-1.28,-3.43,0.88,False,495
 Mixed-data standard SFT vs Standard LoRA SFT: accuracy at gold first,-0.2,-2.49,2.02,False,495
 Mixed-data standard SFT vs Standard LoRA SFT: accuracy at gold middle,0.74,-1.41,2.9,False,495

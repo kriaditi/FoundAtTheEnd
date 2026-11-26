@@ -47,7 +47,9 @@ export TRAIN_N="${TRAIN_N:-20000}"
 export DEV_N="${DEV_N:-500}"
 export BALANCED_SEEDS="${BALANCED_SEEDS:-0 1}"
 export TRAIN_SEEDS="${TRAIN_SEEDS:-0 1 2}"          # seeds for standard and balanced runs
-export GOLDFIRST_SEEDS="${GOLDFIRST_SEEDS:-0 1 2}"  # seeds for the gold-always-first control
+export GOLDFIRST_SEEDS="${GOLDFIRST_SEEDS:-0 1 2}"
+export LATE_RATES="${LATE_RATES:-2 4 15}"     # late-exposure sweep: % of training contexts with gold in the last slot (conditions last<P>_s<S>)
+export LATE_SEEDS="${LATE_SEEDS:-0 1 2}"  # seeds for the gold-always-first control
 export MIXED_DATA_DIR="${MIXED_DATA_DIR:-$PROJ/data/train_mixed}"   # InfoSeek + E-VQA training data
 export MIXED_POOL="${MIXED_POOL:-40000}"
 export MIXED_PER_SOURCE_TRAIN="${MIXED_PER_SOURCE_TRAIN:-10000}"     # 10,000 + 10,000 = same 20,000 as the other runs

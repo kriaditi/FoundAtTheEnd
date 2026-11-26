@@ -6,4 +6,7 @@ Balanced LoRA SFT,mean of 3 seeds,mean of 3 seeds,54.07,56.03,54.61,-0.54
 Gold-first LoRA SFT (control),mean of 3 seeds,mean of 3 seeds,69.63,14.14,14.21,55.42
 Mixed-data standard SFT,mean of 3 seeds,mean of 3 seeds,54.48,55.96,55.02,-0.54
 Mixed-data balanced SFT,mean of 3 seeds,mean of 3 seeds,54.88,56.43,54.68,0.2
+Late-exposure 2% SFT,mean of 3 seeds,mean of 3 seeds,56.16,56.97,51.99,4.17
+Late-exposure 4% SFT,mean of 3 seeds,mean of 3 seeds,55.02,55.22,51.99,3.03
+Late-exposure 15% SFT,mean of 3 seeds,mean of 3 seeds,53.4,53.47,55.22,-1.82
 "Isolated reading (frozen, mean log-prob)",measured (order-invariant by construction),measured (order-invariant by construction),31.11,31.11,31.11,0.0

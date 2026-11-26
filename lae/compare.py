@@ -29,7 +29,7 @@ import numpy as np
 B, SEED = 10_000, 42
 POS = ("first", "middle", "last")
 KS = (1, 3, 5, 10, 20)
-CONDS = ("standard", "balanced", "goldfirst", "mixed_standard", "mixed_balanced")
+CONDS = ["standard", "balanced", "goldfirst", "mixed_standard", "mixed_balanced"]   # late-exposure conditions (last<P>) are appended when found
 COND_LABEL = {"standard": "Standard LoRA SFT", "balanced": "Balanced LoRA SFT",
               "goldfirst": "Gold-first LoRA SFT (control)",
               "mixed_standard": "Mixed-data standard SFT", "mixed_balanced": "Mixed-data balanced SFT"}
@@ -89,15 +89,19 @@ def main() -> int:
     # trained runs: <condition>_seed<S>, condition "standard", "balanced_s<S>" or "goldfirst"
     runs: dict[str, list[tuple[int, str, dict]]] = {c: [] for c in CONDS}
     for d in sorted(args.eval_root.glob("*_seed*")):
-        m = re.fullmatch(r"(standard|balanced_s\d+|goldfirst|mixed_standard|mixed_balanced_s\d+)_seed(\d+)", d.name)
+        m = re.fullmatch(r"(standard|balanced_s\d+|goldfirst|mixed_standard|mixed_balanced_s\d+|last\d+_s\d+)_seed(\d+)", d.name)
         if not m or not (d / "per_cell_summary.json").exists():
             continue
         run = load_run(d)
         for cell, dd in run["cells"].items():
             if set(dd) != set(qids):
                 raise SystemExit(f"{d.name}/{cell}: question set differs from the frozen run")
-        cond = re.sub(r"_s\d+$", "", m.group(1))          # balanced_s0 -> balanced, mixed_balanced_s1 -> mixed_balanced
+        cond = re.sub(r"_s\d+$", "", m.group(1))          # balanced_s0 -> balanced, mixed_balanced_s1 -> mixed_balanced, last2_s0 -> last2
+        if cond not in runs:                                 # late-exposure sweep condition
+            CONDS.append(cond); runs[cond] = []
+            COND_LABEL[cond] = f"Late-exposure {cond[4:]}% SFT"
         runs[cond].append((int(m.group(2)), d.name, run))
+    CONDS[:] = [c for c in CONDS if not c.startswith("last")] + sorted((c for c in CONDS if c.startswith("last")), key=lambda c: int(c[4:]))
 
     # --- per-seed table
     per_seed = []
@@ -202,6 +206,13 @@ def main() -> int:
             add(f"[k=20] {b} vs {s}: accuracy at gold {p}", lambda i, p=p: V20[b][p][i].mean() - V20[s][p][i].mean())
     if g in V20 and s in V20:
         add(f"[k=20] {g} vs {s}: change in gap", lambda i: g20(g, i) - g20(s, i))
+    for cond in CONDS:   # late-exposure sweep: each rate against standard (natural order)
+        if cond.startswith("last") and COND_LABEL[cond] in models and s in models:
+            lc = COND_LABEL[cond]
+            add(f"{lc} vs {s}: change in gap",
+                lambda i, lc=lc: (V[lc]["first"][i].mean() - V[lc]["last"][i].mean()) - (V[s]["first"][i].mean() - V[s]["last"][i].mean()))
+            for p in POS:
+                add(f"{lc} vs {s}: accuracy at gold {p}", lambda i, lc=lc, p=p: V[lc][p][i].mean() - V[s][p][i].mean())
     ms, mb = COND_LABEL["mixed_standard"], COND_LABEL["mixed_balanced"]
     if ms in models and s in models:   # does adding E-VQA data cost anything in-domain?
         add(f"{ms} vs {s}: change in gap",
